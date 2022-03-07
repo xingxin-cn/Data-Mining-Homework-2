@@ -8,7 +8,7 @@ Yiwen Wang
 
 \#Question 1
 
-![](Data-Mining-Exercise-2-copy_files/figure-markdown_strict/unnamed-chunk-2-1.png)
+![](Data-Mining-Exercise-2_files/figure-markdown_strict/unnamed-chunk-2-1.png)
 
 The graph tells the average boardings by day in September, October and
 November, which is the technical fall semester at UT. During weekdays,
@@ -33,7 +33,7 @@ study at home.
 
 \#\#Panel 2
 
-![](Data-Mining-Exercise-2-copy_files/figure-markdown_strict/unnamed-chunk-3-1.png)
+![](Data-Mining-Exercise-2_files/figure-markdown_strict/unnamed-chunk-3-1.png)
 The graph shows the effect of the temperature in each 15-minute window
 on the number of UT students riding the bus.
 
@@ -72,13 +72,13 @@ weather.
     ## rooms       0.15706779 0.6718633  0.31989415  0.51758469  1.00000000
 
 \#lm
-![](Data-Mining-Exercise-2-copy_files/figure-markdown_strict/unnamed-chunk-6-1.png)![](Data-Mining-Exercise-2-copy_files/figure-markdown_strict/unnamed-chunk-6-2.png)![](Data-Mining-Exercise-2-copy_files/figure-markdown_strict/unnamed-chunk-6-3.png)
+![](Data-Mining-Exercise-2_files/figure-markdown_strict/unnamed-chunk-6-1.png)![](Data-Mining-Exercise-2_files/figure-markdown_strict/unnamed-chunk-6-2.png)![](Data-Mining-Exercise-2_files/figure-markdown_strict/unnamed-chunk-6-3.png)
 
     ## [1] 0.5812655
 
     ## [1] 0.5016457
 
-![](Data-Mining-Exercise-2-copy_files/figure-markdown_strict/unnamed-chunk-6-4.png)![](Data-Mining-Exercise-2-copy_files/figure-markdown_strict/unnamed-chunk-6-5.png)![](Data-Mining-Exercise-2-copy_files/figure-markdown_strict/unnamed-chunk-6-6.png)![](Data-Mining-Exercise-2-copy_files/figure-markdown_strict/unnamed-chunk-6-7.png)![](Data-Mining-Exercise-2-copy_files/figure-markdown_strict/unnamed-chunk-6-8.png)![](Data-Mining-Exercise-2-copy_files/figure-markdown_strict/unnamed-chunk-6-9.png)![](Data-Mining-Exercise-2-copy_files/figure-markdown_strict/unnamed-chunk-6-10.png)![](Data-Mining-Exercise-2-copy_files/figure-markdown_strict/unnamed-chunk-6-11.png)![](Data-Mining-Exercise-2-copy_files/figure-markdown_strict/unnamed-chunk-6-12.png)![](Data-Mining-Exercise-2-copy_files/figure-markdown_strict/unnamed-chunk-6-13.png)![](Data-Mining-Exercise-2-copy_files/figure-markdown_strict/unnamed-chunk-6-14.png)
+![](Data-Mining-Exercise-2_files/figure-markdown_strict/unnamed-chunk-6-4.png)![](Data-Mining-Exercise-2_files/figure-markdown_strict/unnamed-chunk-6-5.png)![](Data-Mining-Exercise-2_files/figure-markdown_strict/unnamed-chunk-6-6.png)![](Data-Mining-Exercise-2_files/figure-markdown_strict/unnamed-chunk-6-7.png)![](Data-Mining-Exercise-2_files/figure-markdown_strict/unnamed-chunk-6-8.png)![](Data-Mining-Exercise-2_files/figure-markdown_strict/unnamed-chunk-6-9.png)![](Data-Mining-Exercise-2_files/figure-markdown_strict/unnamed-chunk-6-10.png)![](Data-Mining-Exercise-2_files/figure-markdown_strict/unnamed-chunk-6-11.png)![](Data-Mining-Exercise-2_files/figure-markdown_strict/unnamed-chunk-6-12.png)![](Data-Mining-Exercise-2_files/figure-markdown_strict/unnamed-chunk-6-13.png)![](Data-Mining-Exercise-2_files/figure-markdown_strict/unnamed-chunk-6-14.png)
 
     ## 
     ## Call:
@@ -696,7 +696,7 @@ weather.
 
     ## [1] 62197.64 62808.27 61826.31 63165.20
 
-![](Data-Mining-Exercise-2-copy_files/figure-markdown_strict/unnamed-chunk-16-1.png)
+![](Data-Mining-Exercise-2_files/figure-markdown_strict/unnamed-chunk-16-1.png)
 
     ## [1] 61138.13
 
@@ -734,7 +734,7 @@ implemented the tax regulation.
     ##   0   1 
     ## 243  50
 
-![](Data-Mining-Exercise-2-copy_files/figure-markdown_strict/unnamed-chunk-18-1.png)
+![](Data-Mining-Exercise-2_files/figure-markdown_strict/unnamed-chunk-18-1.png)
 
 \#\#(2)
 
@@ -799,7 +799,7 @@ The classification accuracy of the best linear model in the test set is
 
     ## Area under the curve: 0.824
 
-![](Data-Mining-Exercise-2-copy_files/figure-markdown_strict/unnamed-chunk-24-1.png)
+![](Data-Mining-Exercise-2_files/figure-markdown_strict/unnamed-chunk-24-1.png)
 
 the ROC curve show below, and the AUC is 0.82, which means the best
 model presented well in new data.
