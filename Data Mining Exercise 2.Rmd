@@ -1,0 +1,392 @@
+---
+title: "Data Mining Exercise 2"
+output: md_document
+---
+Author: 
+
+Shankai Liao
+
+Xing Xin
+
+Yiwen Wang
+
+
+
+```{r setup, include=FALSE}
+  knitr::opts_chunk$set(echo = FALSE)
+```
+#Question 1
+
+```{r, echo=FALSE,message=FALSE, warning=FALSE}
+library(tidyverse)
+library(ggplot2)
+library(mosaic)
+library(curl)
+
+capmetro = read.csv("https://raw.githubusercontent.com/jgscott/ECO395M/master/data/capmetro_UT.csv")
+View(capmetro)
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+capmetro = mutate(capmetro, month = factor(month, levels = c("Sep","Oct", "Nov")),
+                  day_of_week = factor(day_of_week, levels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")))
+
+
+by_day = capmetro %>%
+  group_by(month, day_of_week, hour_of_day) %>%
+  summarize(aveboard = mean(boarding, na.rm = TRUE))
+
+ggplot(by_day, aes(x = hour_of_day, y = aveboard, group = month)) +
+  geom_line(aes(color = month)) +
+  facet_wrap(~day_of_week) +
+  scale_color_discrete(name = "Month") +
+  xlab("Time(24-hour clock)") +
+  ylab("Average boardings") +
+  ggtitle("The effect of time on boardings") +
+  theme(plot.title = element_text(hjust = 0.5)) 
+
+```
+
+The graph tells the average boardings by day in September, October and November, which is the technical fall semester at UT. During weekdays, the hour of peaak boardings mainly focuses from 3-6 pm when students finish all-day classes and prepare to go back home yet their go-to-school time might be different so the hour of peak doesn't concentrate on a specific time window in the morning. During weekends, there is no regular class so the number of boardings is smooth and lower.
+
+The reason why it looks lower for average boardings on Monday might be because students are still adapting the regular pace of school after the summer holiday. It is not uncommon that people have returning-to-school synodrome. Students may miss and be unwiiling to start the class on Monday in the first month of the semester.
+
+Additionally, the boardings on Wednesdays, Thursday and Fridays is lower in November when it approaches the end of the semester. Students have to strugle into preparation for final exams and they typically have their own study plans. Instead of attending regular classes they may choose to study at home.
+
+##Panel 2
+
+``` {r, echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(capmetro, aes(x = temperature, y = boarding)) +
+  facet_wrap(~hour_of_day)+
+  geom_point(aes(color = weekend)) +
+  ggtitle("The effect of temperature on boardings")
+
+```
+The graph shows the effect of the temperature in each 15-minute window on the number of UT students riding the bus. 
+
+Holding hour of day and the weekend status constant, there is no effect of temperature on boardings, which means the decision for riding a bus more depends on other effect such as the class schedule instead of the temeprature. The senerio takes place partly because of airconditioning system in the bus ease the impact of temperature due to the natural weather. 
+
+#Question 2
+
+```{r, echo=FALSE,message=FALSE, warning=FALSE}
+library(tidyverse)
+library(kknn)
+library(ggplot2)
+library(modelr)
+library(rsample)
+library(mosaic)
+library(patchwork)
+data(SaratogaHouses)
+
+```
+#Splitting the data
+```{r, echo=FALSE,message=FALSE, warning=FALSE}
+set.seed(2022)
+folds = 5
+n = nrow(SaratogaHouses)
+idx = sample(1:folds,n,replace = T)
+cor(SaratogaHouses[,1:10])
+```
+#lm
+```{r,echo=FALSE, message=FALSE,warning=FALSE}
+ggplot(SaratogaHouses,aes(lotSize,price))+
+  geom_point()+
+  geom_vline(xintercept = 1,col="red")+
+  theme_bw()
+p1 = ggplot(SaratogaHouses,aes(age,price))+
+  geom_point()+
+  theme_bw()
+p2 = ggplot(SaratogaHouses,aes(log(age+1),price))+
+  geom_point()+
+  theme_bw()
+p1+p2
+p1 = ggplot(SaratogaHouses,aes(landValue,price))+
+  geom_point()+
+  theme_bw()
+p2 = ggplot(SaratogaHouses,aes(log(landValue+1),price))+
+  geom_point()+
+  theme_bw()
+p1+p2
+cor(SaratogaHouses$price,SaratogaHouses$landValue)
+cor(SaratogaHouses$price,log(SaratogaHouses$landValue+1))
+
+ggplot(SaratogaHouses,aes(livingArea,price))+
+  geom_point()+
+  theme_bw()
+
+ggplot(SaratogaHouses,aes(pctCollege,price))+
+  geom_point()+
+  theme_bw()
+ggplot(SaratogaHouses,aes(bedrooms,price))+
+  geom_point()+
+  theme_bw()
+ggplot(SaratogaHouses,aes(fireplaces,price))+
+  geom_point()+
+  theme_bw()
+ggplot(SaratogaHouses,aes(bathrooms,price))+
+  geom_point()+
+  theme_bw()
+ggplot(SaratogaHouses,aes(heating,price))+
+  geom_boxplot()+
+  theme_bw()
+ggplot(SaratogaHouses,aes(fuel,price))+
+  geom_boxplot()+
+  theme_bw()
+ggplot(SaratogaHouses,aes(sewer,price))+
+  geom_boxplot()+
+  theme_bw()
+ggplot(SaratogaHouses,aes(waterfront,price))+
+  geom_boxplot()+
+  theme_bw()
+ggplot(SaratogaHouses,aes(newConstruction,price))+
+  geom_boxplot()+
+  theme_bw()
+ggplot(SaratogaHouses,aes(centralAir,price))+
+  geom_boxplot()+
+  theme_bw()
+```
+
+```{r,echo=FALSE,message=FALSE,warning=FALSE}
+lm0 = lm(price ~ lotSize +age + livingArea + pctCollege + bedrooms + 
+           fireplaces+bathrooms + rooms + heating + fuel + centralAir,
+         data=SaratogaHouses)
+summary(lm0)
+```
+
+```{r,echo=FALSE,message=FALSE,warning=FALSE}
+lm1 = lm(price ~ I(lotSize>1)+log(age+1) +landValue+ livingArea + pctCollege + bedrooms+bathrooms+ I(heating=="electric")+ fuel +waterfront+newConstruction+centralAir,
+         data=SaratogaHouses)
+summary(lm1)
+```
+
+```{r,echo=FALSE,message=FALSE,warning=FALSE}
+lm2 <- step(lm1)
+summary(lm2)
+```
+
+```{r,echo=FALSE,message=FALSE,warning=FALSE}
+lm3 = lm(price ~ I(lotSize>1)+log(age+1)+landValue++I(landValue^2)+ livingArea +  bedrooms+bathrooms+ rooms+I(heating=="electric")+ waterfront+newConstruction+centralAir+livingArea:centralAir+
+           I(lotSize>1):I(heating=="electric"),
+         data=SaratogaHouses)
+summary(lm3)
+```
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE}
+AIC(lm0,lm1,lm2,lm3)
+```
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE}
+anova(lm0,lm3)
+anova(lm1,lm3)
+anova(lm2,lm3)
+```
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE}
+lm.rmse0 = c()
+lm.rmse1 = c()
+lm.rmse2 = c()
+lm.rmse3 = c()
+for(i in 1:folds){
+  train = SaratogaHouses[idx!=i,]
+  test = SaratogaHouses[idx==i,]
+  lm0 = lm(price ~ lotSize +age + livingArea + pctCollege + bedrooms + 
+           fireplaces+bathrooms + rooms + heating + fuel + centralAir,
+         data=train)
+  lm1 = lm(price ~ I(lotSize>1)+log(age+1) +landValue+ livingArea + pctCollege + bedrooms+bathrooms+ I(heating=="electric")+ fuel +waterfront+newConstruction+centralAir,
+         data=train)
+  lm2 = step(lm1)
+  lm3 = lm(price ~ I(lotSize>1)+log(age+1)+landValue++I(landValue^2)+ livingArea +  bedrooms+bathrooms+ rooms+I(heating=="electric")+ waterfront+newConstruction+centralAir+livingArea:centralAir+
+           I(lotSize>1):I(heating=="electric"),
+         data=train)
+  lm.rmse0[i] = rmse(lm0, test)
+  lm.rmse1[i] = rmse(lm1, test)
+  lm.rmse2[i] = rmse(lm2, test)
+  lm.rmse3[i] = rmse(lm3, test)
+}
+c(mean(lm.rmse0),mean(lm.rmse1),mean(lm.rmse2),mean(lm.rmse3))
+mean(lm.rmse3)
+```
+
+#knn
+
+```{r,echo=FALSE,message=FALSE,warning=FALSE}
+scale_data = SaratogaHouses %>% 
+  select(-price)%>%
+  mutate_if(is.numeric, .funs = scale)
+scale_data = cbind(scale_data,price=SaratogaHouses$price)
+cor(scale_data[,c(1:9,16)])[10,]
+```
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE}
+knn.rmse0 = c()
+knn.rmse1 = c()
+knn.rmse2 = c()
+knn.rmse3 = c()
+for(i in 1:folds){
+  train = scale_data[idx!=i,]
+  test = scale_data[idx==i,]
+  knn0 = kknn(price ~ landValue+livingArea+bedrooms+bathrooms+rooms,
+         train,test,k=55)
+   knn.rmse0[i] = sqrt(mean((knn0$fitted.values - test$price)^2))
+   knn1 = kknn(price~landValue+livingArea+bedrooms+bathrooms+rooms+fireplaces,train,test,k=55)
+   knn.rmse1[i] = sqrt(mean((knn1$fitted.values - test$price)^2))
+   knn2 = kknn(price ~ landValue+livingArea+bedrooms+bathrooms,
+         train,test,k=55)
+  knn.rmse2[i] = sqrt(mean((knn2$fitted.values - test$price)^2))
+  knn3 = kknn(price ~ landValue+livingArea+rooms,
+         train,test,k=55)
+  knn.rmse3[i] = sqrt(mean((knn3$fitted.values - test$price)^2))
+  }
+c(mean(knn.rmse0),mean(knn.rmse1),mean(knn.rmse2),mean(knn.rmse3))
+```
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE}
+knn.rmse = matrix(nrow=folds,ncol=56)
+for(i in 1:folds){
+  train = scale_data[idx!=i,]
+  test = scale_data[idx==i,]
+  for(j in 5:60){
+     knn = kknn(price ~ landValue+livingArea+bedrooms+bathrooms,
+         train,test,k=j)
+  knn.rmse[i,j-4] = sqrt(mean((knn$fitted.values - test$price)^2))
+  }
+}
+knn.rmse = apply(knn.rmse,2,mean)
+plot(5:60,knn.rmse,type="l")
+min(knn.rmse)
+```
+
+Report
+The lm RMSE is lower than the KNN RMSE and it has the better illustration about the interaction of predictors.According to the data from lm0 to lm3, the rmse of lm3 is smaller and it can illustrate how different predictors can have effect on prices. From the coefficient of lm1 to lm2, the transformation of age, I(heating == "electric"), waterfront, and Central Value could decrease the price of one house. The landvalue could increase the price of house, but the square of landvalue could decrease the price.
+While, "lotSize > 1", "livingArea", and "bathrooms" these factors can promote the price. When increase one element of these predictors, the price will increase. So maybe the tax authority could focus on these predictors when evaluating the housing price.
+In addition, the advantage of lm is that it has a simple foundation of complicated techniques and it can be interpreted easily than knn model. So when the RMSE of lm is lower than the RMSE of knn, the tax authority could use the linear model to justify the change and the error between predictors. Maybe it can be helpful to them implemented the tax regulation. 
+
+
+#Question 3
+
+```{r, echo=FALSE,message=FALSE, warning=FALSE}
+library(tidyverse)
+library(ggplot2)
+library(MASS) 	
+library(modelr)
+library(rsample)
+
+german_credit <- read.csv("https://raw.githubusercontent.com/jgscott/ECO395M/master/data/german_credit.csv")
+```
+
+##(1)
+```{r, echo=FALSE,message=FALSE, warning=FALSE}
+german_credit_1 = german_credit %>%
+  filter(history == "good")
+table(german_credit_1$Default)
+prob1 = 53/sum(table(german_credit_1$Default))
+
+german_credit_2 = german_credit %>%
+  filter(history == "poor")
+table(german_credit_2$Default)
+prob2 = 197/sum(table(german_credit_2$Default))
+
+german_credit_3 = german_credit %>%
+  filter(history == "terrible")
+table(german_credit_3$Default)
+prob3 = 50/sum(table(german_credit_3$Default))
+
+prob = cbind(prob1,prob2,prob3)
+
+barplot(prob,main="default probability by credit history", xlab="history", ylab="default probability")
+```
+
+##(2)
+```{r, echo=FALSE,message=FALSE, warning=FALSE}
+german_credit_glm = glm(formula = Default ~ duration + amount + installment + age + 
+                          history + purpose + foreign, family = "binomial", data = german_credit)
+
+coef(german_credit_glm)
+```
+
+After seeing the bar plot of history and the default probability, the default probability is high when one borrower's credit rating is "good".When borrowers' credit rating is "poor" or "terrible", the default probabilty is lower than people who are "good". 
+This is contradicted by my thinking because I think that people will experience high default probability when their credit rating is "poor" or "terrible". Maybe one reason is that the bank check people whose credit rating is poor or terrible more strictly. Another reason is the total number of people of "poor" which met default and it has the large proportion of total number of people who experience default.
+In my opinion, this data is not appropriate for building the model of predicting the default probabilty. One reason is that this regression model might not consider the interaction between predictors. Maybe the relationshipe beween "historypoor" and "purposegoods" will cause lower default probability. Another reason is the bank matches the default and the not default in similar set of loans. Maybe similar loans could cause some errors of predictors of default probability.
+I advise that the bank's sampling scheme should be random sampling and choose different loans to estimate default probabilities.
+
+#Question 4
+
+```{r, echo=FALSE,message=FALSE, warning=FALSE}
+data <- read.csv("https://raw.githubusercontent.com/jgscott/ECO395M/master/data/hotels_dev.csv")
+n <- nrow(data)
+set.seed(2022)
+index <- sample(n,n*0.7,replace = F)
+train <- data[index,]
+test <- data[-index,]
+```
+##Model building
+
+###Baseline 1
+```{r, echo=FALSE,message=FALSE, warning=FALSE}
+model1 <- glm(children~market_segment+adults+customer_type+is_repeated_guest,family = binomial(),data = train)
+pre1 <- predict(model1,newdata = test,type="response")
+pre1 <- as.numeric(pre1>0.5)
+mean(pre1== test$children)
+```
+The classification accuracy of baseline1 in the test set is 92.19%.
+
+###Baseline 2
+```{r, echo=FALSE,message=FALSE, warning=FALSE}
+model2 <- glm(children~.,family = binomial(),data = train[,-22])
+pre2 <- predict(model2,newdata = test,type="response")
+pre2 <- as.numeric(pre2>0.5)
+mean(pre2== test$children)
+```
+The classification accuracy of baseline2 in the test set is 93.64%.
+
+###The best linear model
+```{r, echo=FALSE,message=FALSE, warning=FALSE}
+data$year <- as.numeric(substr(data$arrival_date,1,4))
+data$month <- as.numeric(substr(data$arrival_date,6,7))
+data$quarter <- data$month%/%4+1
+train <- data[index,]
+test <- data[-index,]
+model3 <- glm(children~adults+customer_type+is_repeated_guest+average_daily_rate+total_of_special_requests+lead_time+adults+assigned_room_type+booking_changes+adults+reserved_room_type+adults:assigned_room_type+I(average_daily_rate^2)+year+hotel+hotel:average_daily_rate+previous_bookings_not_canceled,family = binomial(),data = train)
+pre3 <- predict(model3,newdata = test,type="response")
+pre3 <- as.numeric(pre3>0.5)
+mean(pre3== test$children)
+```
+
+The classification accuracy of the best linear model in the test set is 93.78%.
+
+##Model validation: step 1
+
+```{r, echo=FALSE,message=FALSE, warning=FALSE}
+test_wai = read.csv("https://raw.githubusercontent.com/jgscott/ECO395M/master/data/hotels_val.csv",sep = ',')
+test_wai$year = as.numeric(test_wai$arrival_date %>% substr(1,4))
+test_wai$month = as.numeric(test_wai$arrival_date %>% substr(6,6))
+testw_pred = predict(model3,newdata = test_wai,type="response")
+testw_pred = as.numeric(testw_pred>0.5)
+library(pROC) 
+roc1 <- roc(testw_pred,test_wai$children)
+roc1
+auc(roc1)
+plot(roc1)
+
+```
+
+the ROC curve show below, and the AUC is 0.82, which means the best model presented  well in new data.
+
+##Model validation: step 2
+
+```{r, echo=FALSE,message=FALSE, warning=FALSE}
+library(dplyr)
+CVgroup <- function(k,datasize,seed){
+  cvlist <- list()
+  set.seed(seed)
+  n <- rep(1:k,ceiling(datasize/k))[1:datasize]    
+  temp <- sample(n,datasize) 
+  x <- 1:k
+  dataseq <- 1:datasize
+  cvlist <- lapply(x,function(x) dataseq[temp==x])  
+  return(cvlist)
+}
+```
+
+From the result, we can see that the auc range from 0.7251 to 0.8859.
+
